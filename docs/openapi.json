@@ -1,1 +1,265 @@
-{"openapi":"3.1.0","info":{"title":"Honeypot API","version":"0.1.0"},"paths":{"/":{"get":{"summary":"Root","operationId":"root__get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}}}}},"/health":{"get":{"summary":"Health","operationId":"health_health_get","responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}}}}},"/events":{"get":{"summary":"Get Events","operationId":"get_events_events_get","parameters":[{"name":"limit","in":"query","required":false,"schema":{"type":"integer","default":50,"title":"Limit"}}],"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}},"post":{"summary":"Create Event","operationId":"create_event_events_post","requestBody":{"required":true,"content":{"application/json":{"schema":{"$ref":"#/components/schemas/EventIn"}}}},"responses":{"200":{"description":"Successful Response","content":{"application/json":{"schema":{}}}},"422":{"description":"Validation Error","content":{"application/json":{"schema":{"$ref":"#/components/schemas/HTTPValidationError"}}}}}}}},"components":{"schemas":{"EventIn":{"properties":{"event_time":{"anyOf":[{"type":"string","format":"date-time"},{"type":"null"}],"title":"Event Time"},"src_ip":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Src Ip"},"event_type":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Event Type"},"username":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Username"},"password":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Password"},"command":{"anyOf":[{"type":"string"},{"type":"null"}],"title":"Command"},"raw_json":{"anyOf":[{"additionalProperties":true,"type":"object"},{"type":"null"}],"title":"Raw Json"}},"type":"object","title":"EventIn"},"HTTPValidationError":{"properties":{"detail":{"items":{"$ref":"#/components/schemas/ValidationError"},"type":"array","title":"Detail"}},"type":"object","title":"HTTPValidationError"},"ValidationError":{"properties":{"loc":{"items":{"anyOf":[{"type":"string"},{"type":"integer"}]},"type":"array","title":"Location"},"msg":{"type":"string","title":"Message"},"type":{"type":"string","title":"Error Type"},"input":{"title":"Input"},"ctx":{"type":"object","title":"Context"}},"type":"object","required":["loc","msg","type"],"title":"ValidationError"}}}}
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Honeypot API",
+    "version": "0.2.0"
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Raíz",
+        "operationId": "root",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Salud DB + proceso",
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "Healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/events": {
+      "get": {
+        "summary": "Lista de eventos",
+        "operationId": "list_events",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "integer", "default": 50, "minimum": 1 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Eventos ordenados descendente por id",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/EventListOut" }
+              }
+            }
+          },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      },
+      "post": {
+        "summary": "Ingesta (shipper u orígenes autorizados)",
+        "operationId": "create_event",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/EventIn" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Insertado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/events/{event_id}": {
+      "get": {
+        "summary": "Detalle por id",
+        "operationId": "get_event",
+        "parameters": [
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "minimum": 1 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Evento encontrado",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/EventDetailOut" }
+              }
+            }
+          },
+          "404": {
+            "description": "No encontrado"
+          },
+          "422": { "$ref": "#/components/responses/ValidationError" }
+        }
+      }
+    },
+    "/stats": {
+      "get": {
+        "summary": "Resumen para dashboard",
+        "operationId": "stats",
+        "responses": {
+          "200": {
+            "description": "Totales y tops",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/StatsOut" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "ValidationError": {
+        "description": "Error de validación",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/HTTPValidationError" }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "EventIn": {
+        "properties": {
+          "event_time": {
+            "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }]
+          },
+          "src_ip": { "anyOf": [{ "type": "string" }, { "type": "null" }] },
+          "event_type": { "anyOf": [{ "type": "string" }, { "type": "null" }] },
+          "username": { "anyOf": [{ "type": "string" }, { "type": "null" }] },
+          "password": { "anyOf": [{ "type": "string" }, { "type": "null" }] },
+          "command": { "anyOf": [{ "type": "string" }, { "type": "null" }] },
+          "raw_json": { "anyOf": [{ "type": "object", "additionalProperties": true }, { "type": "null" }] }
+        },
+        "type": "object",
+        "title": "EventIn"
+      },
+      "EventRow": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "event_time": { "anyOf": [{ "type": "string", "format": "date-time" }, { "type": "null" }] },
+          "src_ip": { "anyOf": [{ "type": "string" }, { "type": "null" }] },
+          "event_type": { "anyOf": [{ "type": "string" }, { "type": "null" }] },
+          "username": { "anyOf": [{ "type": "string" }, { "type": "null" }] },
+          "password": { "anyOf": [{ "type": "string" }, { "type": "null" }] },
+          "command": { "anyOf": [{ "type": "string" }, { "type": "null" }] }
+        }
+      },
+      "EventListOut": {
+        "type": "object",
+        "properties": {
+          "events": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/EventRow" }
+          }
+        },
+        "required": ["events"]
+      },
+      "EventDetailOut": {
+        "type": "object",
+        "properties": {
+          "event": {
+            "type": "object",
+            "additionalProperties": true,
+            "description": "Incluye raw_json (JSON) cuando existe"
+          }
+        },
+        "required": ["event"]
+      },
+      "StatsOut": {
+        "type": "object",
+        "properties": {
+          "total_events": { "type": "integer" },
+          "recent_24h": { "type": "integer" },
+          "top_ips": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "src_ip": { "type": "string" },
+                "count": { "type": "integer" }
+              }
+            }
+          },
+          "top_event_types": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "event_type": { "type": "string" },
+                "count": { "type": "integer" }
+              }
+            }
+          }
+        },
+        "required": ["total_events", "recent_24h", "top_ips", "top_event_types"]
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": { "$ref": "#/components/schemas/ValidationError" },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [{ "type": "string" }, { "type": "integer" }]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": { "type": "string", "title": "Message" },
+          "type": { "type": "string", "title": "Error Type" }
+        },
+        "type": "object",
+        "required": ["loc", "msg", "type"],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

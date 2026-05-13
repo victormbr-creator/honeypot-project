@@ -10,22 +10,22 @@ qué partes pueden cambiar, escalar o reemplazarse sin afectar a las demás.
 
 ## Quantum 1: Captura
 
-**Servicios:** Cowrie + Log Shipper
+**Servicios:** Cowrie + **shipper** (contenedor `shipper/` en Docker Compose)
 
 **Responsabilidad:**  
 Simular servicios vulnerables (SSH/Telnet) y transformar las interacciones 
 de los atacantes en eventos estructurados que el resto del sistema pueda consumir.
 
 **Características:**
-- Es el único quantum expuesto hacia el exterior (puerto 2222)
-- Genera logs en formato JSON de forma nativa
-- Opera de forma completamente independiente del resto del sistema
-- Alta disponibilidad deseable: si cae, se pierden eventos
+- Cowrie es el único servicio expuesto hacia el exterior para interacción de atacantes (puerto **2222**)
+- Cowrie genera logs en formato JSON de forma nativa (`var/log/cowrie/cowrie.json` dentro de su volumen)
+- El **shipper** lee ese archivo (mismo volumen montado en solo lectura), avanza con offset persistente y realiza `POST /events` al quantum de procesamiento
+- Alta disponibilidad deseable: si cae Cowrie o el shipper, se pierden o retrasan eventos hasta recuperación
 
 **Independencia:**  
 Cowrie puede reemplazarse por cualquier otro honeypot (Dionaea, HoneyD) 
 sin modificar los quantas de procesamiento ni visualización, siempre que 
-el log shipper mantenga el contrato del payload JSON hacia la API.
+el componente de ingesta mantenga el **contrato del payload** documentado hacia la API (hoy modelado como `EventIn` en FastAPI).
 
 ---
 

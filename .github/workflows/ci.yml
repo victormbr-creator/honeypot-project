@@ -9,23 +9,59 @@ on:
 jobs:
   test-api:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: honeyuser
+          POSTGRES_PASSWORD: honeypass
+          POSTGRES_DB: honeypot
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U honeyuser -d honeypot"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: honeyuser
+      POSTGRES_PASSWORD: honeypass
+      POSTGRES_DB: honeypot
     defaults:
       run:
         working-directory: ./api
+
     steps:
     - name: Checkout del código
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+
+    - name: Cliente PostgreSQL (psql)
+      run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
     - name: Configurar Python 3.10
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: "3.10"
+
+    - name: Esperar Postgres
+      shell: bash
+      run: |
+        for i in {1..30}; do
+          pg_isready -h localhost -p 5432 -U honeyuser -d honeypot && break
+          sleep 2
+        done
+
+    - name: Aplicar esquema
+      shell: bash
+      run: PGPASSWORD=honeypass psql -h localhost -U honeyuser -d honeypot -f ../db/init.sql
 
     - name: Instalar dependencias
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-        pip install pytest httpx
+        pip install pytest httpx psycopg2-binary
 
     - name: Ejecutar pruebas con Pytest
       run: pytest tests/ -v
