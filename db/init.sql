@@ -12,13 +12,13 @@ CREATE TABLE IF NOT EXISTS cowrie_events (
 -- Datos de ejemplo para demo / presentación (volumen DB nuevo solo la primera vez)
 INSERT INTO cowrie_events (event_time, src_ip, event_type, username, password, command)
 VALUES
-  (NOW() - INTERVAL '3 hours',  '203.0.113.44', 'cowrie.login.failed', 'root',   'password', NULL),
-  (NOW() - INTERVAL '2 hours',  '203.0.113.44', 'cowrie.login.failed', 'admin',  'admin123', NULL),
-  (NOW() - INTERVAL '90 minutes', '198.51.100.20', 'cowrie.login.failed', 'root', '123456', NULL),
-  (NOW() - INTERVAL '1 hour',   '198.51.100.20', 'cowrie.command.input', 'root',  NULL, 'uname -a'),
-  (NOW() - INTERVAL '40 minutes','198.51.100.20', 'cowrie.command.input', 'root',  NULL, 'cat /etc/passwd'),
-  (NOW() - INTERVAL '30 minutes','203.0.113.10', 'cowrie.login.failed', 'test', 'test', NULL),
-  (NOW() - INTERVAL '15 minutes','203.0.113.10', 'cowrie.session.connect', NULL, NULL, NULL);
+    (NOW() - INTERVAL '3 hours', '203.0.113.44', 'cowrie.login.failed', 'root', 'password', NULL),
+    (NOW() - INTERVAL '2 hours', '203.0.113.44', 'cowrie.login.failed', 'admin', 'admin123', NULL),
+    (NOW() - INTERVAL '90 minutes', '198.51.100.20', 'cowrie.login.failed', 'root', '123456', NULL),
+    (NOW() - INTERVAL '1 hour', '198.51.100.20', 'cowrie.command.input', 'root', NULL, 'uname -a'),
+    (NOW() - INTERVAL '40 minutes', '198.51.100.20', 'cowrie.command.input', 'root', NULL, 'cat /etc/passwd'),
+    (NOW() - INTERVAL '30 minutes', '203.0.113.10', 'cowrie.login.failed', 'test', 'test', NULL),
+    (NOW() - INTERVAL '15 minutes', '203.0.113.10', 'cowrie.session.connect', NULL, NULL, NULL);
 
 -- Cliente GUI (TablePlus, etc.) en modo sólo lectura para demos sin tocar escritura API
 DO $$

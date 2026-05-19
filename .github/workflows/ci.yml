@@ -65,3 +65,7 @@ jobs:
 
     - name: Ejecutar pruebas con Pytest
       run: pytest tests/ -v
+
+    - name: Ejecutar pruebas del shipper
+      working-directory: .
+      run: PYTHONPATH=. pytest shipper/tests -v

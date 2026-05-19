@@ -232,10 +232,11 @@ Las pruebas se ubican en `api/tests/` y se ejecutan con `pytest`:
 
 ```bash
 # Ejecutar pruebas localmente
-cd api
-pip install -r requirements.txt pytest httpx
-pytest tests/ -v
+python -m pip install -r api/requirements.txt pytest httpx
+POSTGRES_HOST=127.0.0.1 PYTHONPATH=api:. pytest api/tests shipper/tests -v
 ```
+
+Las pruebas de API que consultan PostgreSQL se omiten si la base de datos no está levantada; para ejecutarlas completas, inicia la demo con `docker compose up -d db` o `docker compose up -d` antes de correr `pytest`.
 
 Las pruebas también se corren automáticamente en cada `push` a `main` mediante GitHub Actions (ver `.github/workflows/ci.yml`).
 

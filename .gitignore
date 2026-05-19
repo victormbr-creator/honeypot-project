@@ -1,5 +1,9 @@
 # Python
 __pycache__/
+.pytest_cache/
+.venv/
+venv/
+env/
 *.pyc
 *.pyo
 *.pyd
@@ -17,6 +21,7 @@ __pycache__/
 .streamlit/
 
 # Logs
+logs/
 *.log
 
 # Docker / local data
@@ -26,4 +31,7 @@ cowrie_etc/
 
 # Misc
 *.sqlite3
-
+*.tmp
+*.swp
+tmp/
+temp/
