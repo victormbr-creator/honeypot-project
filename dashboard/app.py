@@ -1,4 +1,5 @@
 import os
+from typing import Any
 
 import httpx
 import pandas as pd
@@ -25,7 +26,7 @@ def fetch_events(limit: int = 200) -> pd.DataFrame:
 
 
 @st.cache_data(ttl=5)
-def fetch_stats():
+def fetch_stats() -> dict[str, Any]:
     url = f"{API_BASE_URL}/stats"
     with httpx.Client(timeout=REQUEST_TIMEOUT) as client:
         r = client.get(url)
@@ -60,5 +61,5 @@ else:
     ett = pd.DataFrame(stats.get("top_event_types", []))
     if not ett.empty:
         st.bar_chart(ett.set_index("event_type")["count"])
-    else:
+    elif "event_type" in df:
         st.bar_chart(df["event_type"].fillna("unknown").value_counts().head(10))

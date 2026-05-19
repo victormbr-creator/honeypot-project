@@ -84,7 +84,8 @@ def post_json(path: str, body: dict[str, Any], timeout: int = 15) -> None:
         headers={"Content-Type": "application/json"},
         method="POST",
     )
-    urllib.request.urlopen(req, timeout=timeout)  # noqa: S310
+    with urllib.request.urlopen(req, timeout=timeout):  # noqa: S310
+        return
 
 
 def wait_for_health(max_wait: float = 300.0, interval: float = 3.0) -> None:
@@ -126,7 +127,7 @@ def read_offset() -> int:
 
 def save_offset(offset: int) -> None:
     STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    STATE_PATH.write_text(str(offset))
+    STATE_PATH.write_text(str(offset), encoding="utf-8")
 
 
 def main() -> None:
